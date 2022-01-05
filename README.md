@@ -5,3 +5,7 @@ The purpose of this service is to act as a simple illustration of the following 
 * Websocket client
 * Externally imported, schema-based Apache Avro data serialisation
 * Apache Kafka producer
+
+## Todo
+* Improve test coverage (in particular for the producer)
+* Illustrate fan-out pattern with a Async producer
