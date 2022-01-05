@@ -1,1 +1,7 @@
 # wikimoningest
+A Golang Kafka ingester for the Hatnote Wikipedia monitor (https://github.com/hatnote/wikimon).
+
+The purpose of this service is to act as a simple illustration of the following functions:
+* Websocket client
+* Externally imported, schema-based Apache Avro data serialisation
+* Apache Kafka producer
