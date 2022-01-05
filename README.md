@@ -1,3 +1,4 @@
+[![Go](https://github.com/jneethling/wikimoningest/actions/workflows/go.yml/badge.svg)](https://github.com/jneethling/wikimoningest/actions/workflows/go.yml)
 # wikimoningest
 A Golang Kafka ingester for the Hatnote Wikipedia monitor (https://github.com/hatnote/wikimon).
 
