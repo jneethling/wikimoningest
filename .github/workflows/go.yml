@@ -20,12 +20,6 @@ jobs:
 
     - name: Build
       run: go build -v ./...
-      
-    - name: Setup
-      run: docker-compose up -d
 
     - name: Test
       run: go test -v ./...
-      
-    - name: Teardown
-      run: docker-compose down

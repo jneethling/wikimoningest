@@ -58,6 +58,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	close(data)
+	log.Print("App stopped by system call")
 }
 
 func ConnectWS(ctx context.Context, logger *zap.Logger, data chan<- []byte) error {
@@ -79,8 +82,6 @@ func ConnectWS(ctx context.Context, logger *zap.Logger, data chan<- []byte) erro
 		}
 	}()
 	<-ctx.Done()
-	close(data)
-	log.Print("App stopped by system call")
 	return nil
 }
 

@@ -9,12 +9,14 @@ import (
 	"go.uber.org/zap"
 )
 
-// TransactionProducer holds the kafka settings
+// WikimonProducer holds the kafka settings
 type WikimonProducer struct {
 	zapLogger       zap.Logger
 	wikiCodec       wikimon.AvroCodec
 	kafkaController sarama.SyncProducer
 	kafkaTopic      string
+	Successes       int
+	Failures        int
 }
 
 // Init the producer parameters
@@ -29,10 +31,13 @@ func (p *WikimonProducer) Init(logger zap.Logger, kafkaController sarama.SyncPro
 		return err
 	}
 	p.wikiCodec = *wikiCodec
+	p.Successes = 0
+	p.Failures = 0
 
 	return nil
 }
 
+// ProduceMsg runs in a go routine and produces messages recieved on data channel
 func (p *WikimonProducer) ProduceMsg(data <-chan []byte) {
 
 	for wsmsg := range data {
@@ -41,12 +46,14 @@ func (p *WikimonProducer) ProduceMsg(data <-chan []byte) {
 		err := json.Unmarshal(wsmsg, &native)
 		if err != nil {
 			p.zapLogger.Error("Error converting message to native golang struct: " + err.Error())
+			p.Failures++
 			continue
 		}
 
 		m, err := json.Marshal(native)
 		if err != nil {
 			p.zapLogger.Error("Error marshalling message: " + err.Error())
+			p.Failures++
 			continue
 		}
 
@@ -54,21 +61,25 @@ func (p *WikimonProducer) ProduceMsg(data <-chan []byte) {
 		err = json.Unmarshal(m, &msg)
 		if err != nil {
 			p.zapLogger.Error("Error unmarshalling message to go map string interface: " + err.Error())
+			p.Failures++
 			continue
 		}
 
 		encodedMsg, err := p.wikiCodec.BinaryFromNative(nil, msg)
 		if err != nil {
 			p.zapLogger.Error("Error encoding message to AVRO")
+			p.Failures++
 			continue
 		}
 		avroMsg := &sarama.ProducerMessage{Topic: p.kafkaTopic, Value: sarama.StringEncoder(encodedMsg)}
 		partition, offset, err := p.kafkaController.SendMessage(avroMsg)
 		if err != nil {
 			p.zapLogger.Error("Error writing message to kafka topic: " + err.Error())
+			p.Failures++
 			continue
 		}
 		p.zapLogger.Info("Produced message to partition " + fmt.Sprint(partition) + " with offset " + fmt.Sprint(offset))
+		p.Successes++
 
 	}
 
