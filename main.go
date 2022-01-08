@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 
 	"github.com/Shopify/sarama"
@@ -65,17 +66,17 @@ func main() {
 
 func ConnectWS(ctx context.Context, logger *zap.Logger, data chan<- []byte) error {
 	u := url.URL{Scheme: "ws", Host: "wikimon.hatnote.com:9000"}
-	log.Printf("Connecting to %s", u.String())
+	logger.Info("Connecting to " + u.String())
 	con, resp, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
-		log.Printf("Handshake failed with status %d", resp.StatusCode)
+		logger.Error("Handshake failed with status " + strconv.Itoa(resp.StatusCode))
 		return err
 	}
 	go func() {
 		for {
 			_, message, err := con.ReadMessage()
 			if err != nil {
-				log.Println("Read:", err)
+				logger.Error("Read: " + err.Error())
 				return
 			}
 			data <- message
