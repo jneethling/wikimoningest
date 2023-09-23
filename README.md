@@ -10,4 +10,4 @@ The purpose of this service is to act as a simple illustration of the following 
 Please note for this toy project the schema supporting the codec is very permissive - in a real-world use case it would probably be much more restrictive, which would allow tighter control and more robust test cases.
 
 ## Todo
-* Illustrate fan-out pattern with a Async producer
+* Illustrate fan-out pattern with a Async producer.
